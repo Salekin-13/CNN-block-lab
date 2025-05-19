@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from collections import defaultdict
+import time
+from datetime import timedelta
 
 
 def train_model(model, data, classes=None, val=None, num_epochs=10, train_flag=True, opt = 'adam', lr=1e-3, early_stop_pat = 5, reduce_lr_pat = 3, cls_acc=False):
@@ -29,7 +31,9 @@ def train_model(model, data, classes=None, val=None, num_epochs=10, train_flag=T
     best_model_state = None
 
 
-    if(train_flag):
+    if train_flag:
+        start_time = time.time()
+
         for epoch in range(num_epochs):
             model.train()
             running_loss = 0.0
@@ -96,6 +100,10 @@ def train_model(model, data, classes=None, val=None, num_epochs=10, train_flag=T
                     print(f"Early stopping triggered at epoch {epoch+1}")
                     break
 
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print("Training time:", str(timedelta(seconds=round(elapsed_time))))
+
         # Load best model before returning
         if best_model_state:
             model.load_state_dict(best_model_state)
@@ -109,6 +117,8 @@ def train_model(model, data, classes=None, val=None, num_epochs=10, train_flag=T
 
         class_correct = defaultdict(int)
         class_total = defaultdict(int)
+
+        start_time = time.time()
 
         with torch.no_grad():
             for images, labels in data:
@@ -131,7 +141,11 @@ def train_model(model, data, classes=None, val=None, num_epochs=10, train_flag=T
                         if prediction.item() == label.item():
                             class_correct[label.item()] += 1
 
-        print(f"Test Loss: {test_loss} & Accuracy: {100*correct/total:.2f}%")
+        end_time = time.time()  # End timing
+        elapsed_time = end_time - start_time
+        print("Evaluation time:", str(timedelta(seconds=round(elapsed_time))))
+
+        print(f"Test Loss: {test_loss/len(data)} & Accuracy: {100*correct/total:.2f}%")
 
         for i, class_name in enumerate(classes):
             C_total = class_total[i]
