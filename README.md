@@ -107,4 +107,4 @@ The notebook also includes:
 ## 🧑‍💻 Author
 
 Made by \[Sumaiya Salekin]
-to better understand the math and 🌱
+to better understand the tradeoff between speed and performance 🌱
