@@ -85,7 +85,7 @@ Install the dependencies using:
 | **LeNet**                | \~57.25%       | 62,006      | \~5m 35s      | Classical model, good baseline             |
 | **mod\_CNN**             | \~70.98%        | 127,858    | \~7m 56s      | BatchNorm, dilation, better generalization |
 | **mod\_CNN\_depthwise**  | \~61.36%        | 109,196      | \~4m 51s      | Lightweight, faster, lower accuracy          |
-| **mod\_CNN\_depth\_res** | \~67.13%        | 235,868     | \~5m 19s      | Residual + depthwise, lightweight with increased accuracy       |
+| **mod\_CNN\_depth\_res** | \~67.13%        | 235,868     | \~5m 19s      | Residual + depthwise, slight increase in accuracy, highest number of parametes       |
 
 ---
 
@@ -107,4 +107,4 @@ The notebook also includes:
 ## 🧑‍💻 Author
 
 Made by \[Sumaiya Salekin]
-to better understand the math and 🌱
+to better understand the tradeoff between speed and performance 🌱
