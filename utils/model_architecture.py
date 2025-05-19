@@ -33,3 +33,44 @@ class LeNet(nn.Module):
         x = self.fc3(x)
 
         return x
+
+class mod_CNN(nn.Module):
+    def __init__(self, num_classes=10):
+        super(mod_CNN, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5, padding=2) ## 3x32x32 -> 6x32x32
+        self.bn1 = nn.BatchNorm2d(6)
+        self.pool = nn.AvgPool2d(kernel_size=2, stride=2) # 6x32x32 -> 6x16x16
+
+        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=3, padding=2) # 6x16x16 -> 16x18x18
+        self.bn2 = nn.BatchNorm2d(16)
+
+        self.conv3 = nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, padding=2) # 16x9x9 -> 16x9x9
+        self.bn3 = nn.BatchNorm2d(16)
+
+        self.conv4 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, padding=2, dilation=2) # 16x9x9 -> 32x5x5
+        self.bn4 = nn.BatchNorm2d(32)
+
+        self.fc1 = nn.Linear(in_features=32*5*5, out_features=120) # 32*5*5 -> 120
+        self.fc2 = nn.Linear(in_features=120, out_features=84) 
+        self.drop = nn.Dropout(0.3)
+        self.fc3 = nn.Linear(in_features=84, out_features=num_classes) #number of classes
+
+    def forward(self, x):
+        x = torch.relu(self.bn1(self.conv1(x)))
+        x = self.pool(x)
+
+        x = torch.relu(self.bn2(self.conv2(x)))
+        x = self.pool(x)
+
+        x = torch.relu(self.bn3(self.conv3(x)))
+        x = torch.relu(self.bn4(self.conv4(x)))
+
+        #x = self.pool(x)
+        #print(x.shape)
+
+        x = x.view(-1, 32*5*5)
+        x = torch.relu(self.fc1(x))
+        x = self.drop(torch.relu(self.fc2(x)))
+        x = self.fc3(x)
+
+        return x

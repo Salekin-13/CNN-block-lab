@@ -1,8 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from collections import defaultdict
 
-def train_model(model, data, val=None, num_epochs=10, train_flag=True, opt = 'adam', lr=1e-3, early_stop_pat = 5, reduce_lr_pat = 3):
+
+def train_model(model, data, classes=None, val=None, num_epochs=10, train_flag=True, opt = 'adam', lr=1e-3, early_stop_pat = 5, reduce_lr_pat = 3, cls_acc=False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     criterion = nn.CrossEntropyLoss() #as the last layer of LeNet is a fully connected layer, crossentropy loss can be used
@@ -75,6 +77,10 @@ def train_model(model, data, val=None, num_epochs=10, train_flag=True, opt = 'ad
             # Step the scheduler
             scheduler.step(val_loss)
 
+            current_lr = optimizer.param_groups[0]['lr']
+            print(f"Current LR: {current_lr:.6f}")
+
+
             print(f"Epoch [{epoch+1}/{num_epochs}] "
                   f"- Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}% "
                   f"- Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
@@ -101,6 +107,9 @@ def train_model(model, data, val=None, num_epochs=10, train_flag=True, opt = 'ad
         test_loss = 0.0
         correct, total = 0, 0
 
+        class_correct = defaultdict(int)
+        class_total = defaultdict(int)
+
         with torch.no_grad():
             for images, labels in data:
                 images, labels = images.to(device), labels.to(device)
@@ -110,7 +119,24 @@ def train_model(model, data, val=None, num_epochs=10, train_flag=True, opt = 'ad
 
                 test_loss += loss.item()
                 _,predicted = torch.max(outputs.data, 1)
+
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
+                if cls_acc:
+                    if classes is None:
+                        raise ValueError("For per class accuracy, please provide class names.")
+                    for label, prediction in zip(labels, predicted):
+                        class_total[label.item()] += 1
+                        if prediction.item() == label.item():
+                            class_correct[label.item()] += 1
+
         print(f"Test Loss: {test_loss} & Accuracy: {100*correct/total:.2f}%")
+
+        for i, class_name in enumerate(classes):
+            C_total = class_total[i]
+            correct = class_correct[i]
+            acc = 100 * correct / C_total if C_total > 0 else 0
+            print(f"{class_name:15}: {acc:.2f}% ({correct}/{C_total})")
+
+        

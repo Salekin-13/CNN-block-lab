@@ -164,3 +164,18 @@ dmypy.json
 
 # PyPI configuration file
 .pypirc
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# Temporary files
+*.tmp
+*.swp
+.DS_Store
+
+# System files
+.DS_Store
+Thumbs.db
